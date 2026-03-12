@@ -1,0 +1,63 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+ id        String   @id @default(uuid())
+ firstName String
+ lastName  String
+ gender    String?
+ phoneNumber String?
+ email     String   @unique
+ password  String
+ imageUrl  String?
+ createdAt DateTime @default(now())
+ likes Like[]
+
+ notifications Notification[]
+}
+
+model Resource {
+ id        String   @id @default(uuid())
+ title     String
+ content   String
+ thumbnailUrl String
+ videoUrl String
+ videoDurationInMins Int
+ videoFileType String?
+ author String
+ createdAt DateTime @default(now())
+ updatedAt DateTime @updatedAt
+ likes Like[]
+}
+
+model Notification {
+ id        String   @id @default(uuid())
+ userId    String
+ title     String
+ message   String
+ read      Boolean  @default(false)
+ createdAt DateTime @default(now())
+
+ user User @relation(fields: [userId], references: [id])
+}
+
+model Like {
+  id          String    @id @default(cuid())
+  user        User      @relation(fields: [userId], references: [id])
+  userId      String
+  resource    Resource  @relation(fields: [resourceId], references: [id])
+  resourceId  String
+
+  @@unique([userId, resourceId]) // ensures one like per user per resource
+}
